@@ -197,3 +197,21 @@ Run3_Reco_124X_PromptReco_postEE = {
         'data_Run2022F': tnpSample('data_Run2022F', eos_Reco_Run3_PromptReco + '/TnPTree_EGamma_2022_Run2022F.root', lumi = 18.0064),
         'data_Run2022G': tnpSample('data_Run2022G', eos_Reco_Run3_PromptReco + '/TnPTree_EGamma_2022_Run2022G.root', lumi = 3.1219)
         }
+
+# -- new ntuples with seed gain for UL Run-2 samples
+basePath_sGain = "/pnfs/iihe/cms/store/user/kplee/EGMTnPTree/2024-09-19/UL2018/merged_240926/"
+
+UL2018_sGain = {
+    'DY_madgraph'              : tnpSample('DY_madgraph',
+                                       basePath_sGain + 'DY_LO.root',
+                                       isMC = True, nEvts =  -1 ),
+    'DY_amcatnloext'           : tnpSample('DY_amcatnloext',
+                                       basePath_sGain + 'DY_NLO.root',
+                                       isMC = True, nEvts =  -1 ),
+
+
+    'data_Run2018A' : tnpSample('data_Run2018A' , basePath_sGain + 'Run2018A.root' , lumi = 14.02672485),
+    'data_Run2018B' : tnpSample('data_Run2018B' , basePath_sGain + 'Run2018B.root' , lumi = 7.060617355),
+    'data_Run2018C' : tnpSample('data_Run2018C' , basePath_sGain + 'Run2018C.root' , lumi = 6.894770971),
+    'data_Run2018D' : tnpSample('data_Run2018D' , basePath_sGain + 'Run2018D.root' , lumi = 31.74220577),
+}
