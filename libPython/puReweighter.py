@@ -229,23 +229,24 @@ puMC = {
 ### MC pu scenario to be used
 #puMCscenario = 'Spring2016MC_PUscenarioV1'
 #puMCscenario = 'mix_2017_25ns_UltraLegacy_PoissonOOTPU'
-#puMCscenario = 'mix_2018_25ns_UltraLegacy_PoissonOOTPU'
-puMCscenario = 'mix_2016_25ns_UltraLegacy_PoissonOOTPU'
-customWeightsName= 'weights'
+puMCscenario = 'mix_2018_25ns_UltraLegacy_PoissonOOTPU'
+# puMCscenario = 'mix_2016_25ns_UltraLegacy_PoissonOOTPU'
+# customWeightsName= 'weights'
 ###puDirEOS = '/eos/cms/store/group/phys_egamma/swmukher/ntuple_2017/PU/'
 #puDirEOS = '/eos/cms/store/group/phys_egamma/soffi/TnP/ntuples_01162018/PU/'
 #puDirEOS = '/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_PUData/'
-puDirEOS = '/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016_PUData/'
+# puDirEOS = '/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016_PUData/'
+puDirEOS = '/user/kplee/Analysis/EGMTnP/Fitter/CMSSW_11_2_0/src/egm_tnp_analysis/etc/inputs/dataPU/2018/'
 
 
 #### Compute weights for all data epoch specified below
-puDataEpoch = {
-    '2016_runBCD' : puDirEOS + 'pu_dist_runBCD_692.root',
-    '2016_runEF' : puDirEOS + 'pu_dist_runEF_692.root',
-    '2016_runGH' : puDirEOS + 'pu_dist_runGH_692.root',
-    '2016_run2016' : puDirEOS + 'pu_dist_run2016_692.root',
-    }
-'''
+# puDataEpoch = {
+#     '2016_runBCD' : puDirEOS + 'pu_dist_runBCD_692.root',
+#     '2016_runEF' : puDirEOS + 'pu_dist_runEF_692.root',
+#     '2016_runGH' : puDirEOS + 'pu_dist_runGH_692.root',
+#     '2016_run2016' : puDirEOS + 'pu_dist_run2016_692.root',
+#     }
+
 puDataEpoch = {
     '2018_runA' : puDirEOS + 'pileup_2018_RunA.root',
     '2018_runB' : puDirEOS + 'pileup_2018_RunB.root',
@@ -253,15 +254,15 @@ puDataEpoch = {
     '2018_runD'  : puDirEOS +'pileup_2018_RunD.root' ,
     '2018_runABCD' : puDirEOS + 'pileup_2018_RunABCD.root',
     }
-puDataEpoch = {
-    '2017_runB' : puDirEOS + 'pileup_2017_RUNB.root',
-    '2017_runC' : puDirEOS + 'pileup_2017_RUNC.root',
-    '2017_runD'  : puDirEOS +'pileup_2017_RUND.root' ,
-    '2017_runE'  : puDirEOS +'pileup_2017_RUNE.root' ,
-    '2017_runF' : puDirEOS + 'pileup_2017_RUNF.root',    
-    '2017_runBCDEF' : puDirEOS + 'pileup_2017_41fb.root',
-    }
-'''
+# puDataEpoch = {
+#     '2017_runB' : puDirEOS + 'pileup_2017_RUNB.root',
+#     '2017_runC' : puDirEOS + 'pileup_2017_RUNC.root',
+#     '2017_runD'  : puDirEOS +'pileup_2017_RUND.root' ,
+#     '2017_runE'  : puDirEOS +'pileup_2017_RUNE.root' ,
+#     '2017_runF' : puDirEOS + 'pileup_2017_RUNF.root',    
+#     '2017_runBCDEF' : puDirEOS + 'pileup_2017_41fb.root',
+#     }
+
 nVtxDataEpoch = {
     '2016_runBCD' : 'etc/inputs/nVtx_2016_runBCD.root',
     '2016_runEF'  : 'etc/inputs/nVtx_2016_runEF.root' ,
