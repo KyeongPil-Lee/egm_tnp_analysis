@@ -36,7 +36,7 @@ Update `etc/config/settings_ele_sGain_UL2018.py`
 ```bash
 python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --checkBins
 python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --createBins
-python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --createHists
+python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --createHists >&createHists.log& tail -f createHists.log
 python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --doFit
 # -- may skip the syst. part
 # -- re-perform the fit
