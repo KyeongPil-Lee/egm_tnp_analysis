@@ -217,9 +217,24 @@ if args.sumUp:
     effis = None
     effFileName ='%s/egammaEffi.txt' % outputDirectory 
     fOut = open( effFileName,'w')
+
+    # -- another output file to keep the bin name
+    outputName_csv ='%s/egammaEff_csv.txt' % outputDirectory
+    f_output = open(outputName_csv, 'w')
     
     for ib in range(len(tnpBins['bins'])):
         effis = tnpRoot.getAllEffi( info, tnpBins['bins'][ib] )
+
+        binDef = tnpBins['bins'][ib]
+        binName = binDef['name']
+        print("[%03d bin] %s" % (ib, binName))
+        for effType in effis.keys():
+            eff = effis[effType][0]
+            absUnc = effis[effType][1]
+            print("  [%15s] %8.5f\t%8.5lf" % (effType, eff, absUnc))
+
+        format_csv='%s,%f,%f,%f,%f' % (binName, effis['dataNominal'][0],effis['dataNominal'][1], effis['mcNominal'][0],effis['mcNominal'][1])
+        f_output.write(format_csv+"\n")
 
         ### formatting assuming 2D bining -- to be fixed        
         v1Range = tnpBins['bins'][ib]['title'].split(';')[1].split('<')
@@ -243,9 +258,11 @@ if args.sumUp:
             # effis['tagSel'][0],
             effis['dataAltSigBkg' ][0],
             )
-        print(astr)
+        # print(astr)
         fOut.write( astr + '\n' )
     fOut.close()
+
+    f_output.close()
 
     print('Effis saved in file : ',  effFileName)
     import libPython.EGammaID_scaleFactors as egm_sf

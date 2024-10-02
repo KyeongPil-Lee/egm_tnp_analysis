@@ -38,6 +38,12 @@ python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID 
 python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --createBins
 python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --createHists >&createHists.log& tail -f createHists.log
 python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --doFit
+python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --doFit --mcSig --altSig
+# python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --doFit --mcSig --addGaus --altSig
+python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --doFit  --altSig
+# python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --doFit  --altSig --addGaus
+python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --doFit  --altBkg
+python tnpEGM_fitter.py etc/config/settings_ele_sGain_UL2018.py --flag mediumID --doFit  --altSigBkg
 # -- may skip the syst. part
 # -- re-perform the fit
 # -- change the initial paeramter for ths this bin in settings_ele_sGain_UL2018.py as well
