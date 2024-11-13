@@ -444,6 +444,96 @@ class efficiencyList:
 
 
 
+# -- custom part -- #
+import sys
 
+def Get_BinEdge(var, list_effInfo):
+  list_allBinEdge = []
+  for effInfo in list_effInfo:
+    varMin = 0.0
+    varMax = 0.0
+    if var == "eta":
+        varMin = effInfo[0]
+        varMax = effInfo[1]
+    elif var == "pt":
+        varMin = effInfo[2]
+        varMax = effInfo[3]
+    else:
+        print("var = " + var + " is not supported")
+        sys.exit()
 
-    
+    # -- put all bin edges, including duplciation (duplication will be removed later)
+    list_allBinEdge.append( varMin )
+    list_allBinEdge.append( varMax )
+
+  list_binEdge = list(set(list_allBinEdge))
+  list_binEdge.sort()
+
+  return list_binEdge
+
+def Make2DEffHistTemplate(histName, list_etaBinEdge, list_ptBinEdge):
+  # -- (eta, pt) hist
+  from ROOT import TH2D
+  from array import array
+  return TH2D(histName, "", len(list_etaBinEdge)-1, array("d", list_etaBinEdge), len(list_ptBinEdge)-1, array("d", list_ptBinEdge))
+
+def GetBinIndex(theRange, list_binEdge):
+  theMin = theRange[0]
+  theMax = theRange[1]
+
+  nBinEdge = len(list_binEdge)
+  for i in range(0, nBinEdge-1):
+    lowerEdge = list_binEdge[i]
+    upperEdge = list_binEdge[i+1]
+
+    if theMin == lowerEdge and theMax == upperEdge:
+      return i+1 # -- i_bin = i+1
+
+  print("no bin for (%lf, %lf) is found", theMin, theMax)
+  sys.exit()
+  return -1
+
+def Fill_Hist(h_eff, list_effInfo, list_etaBinEdge, list_ptBinEdge, effType):
+  for effInfo in list_effInfo:
+    etaRange = [effInfo[0], effInfo[1]]
+    ptRange  = [effInfo[2], effInfo[3]]
+
+    i_etaBin = GetBinIndex(etaRange, list_etaBinEdge)
+    i_ptBin  = GetBinIndex(ptRange, list_ptBinEdge)
+
+    effValue = effInfo[4][effType]
+    h_eff.SetBinContent(i_etaBin, i_ptBin, effValue[0])
+    h_eff.SetBinError(i_etaBin, i_ptBin, effValue[1])
+
+# -- effInfo structure: [etaMin, etaMax, ptMin, ptMax, effis]
+def MakeList_EffHist(list_effInfo):
+    list_etaBinEdge = Get_BinEdge("eta", list_effInfo)
+    list_ptBinEdge  = Get_BinEdge("pt", list_effInfo)
+
+    for etaBinEdge in list_etaBinEdge:
+      print "%.3lf, " % etaBinEdge,
+    print("")
+
+    for ptBinEdge in list_ptBinEdge:
+      print "%.1lf, " % ptBinEdge,
+    print("")
+
+    # -- init. the histograms
+    h_eff_data = Make2DEffHistTemplate("eff_data", list_etaBinEdge, list_ptBinEdge)
+    h_eff_mc   = Make2DEffHistTemplate("eff_mc", list_etaBinEdge, list_ptBinEdge)
+
+    h_eff_data_altSig = Make2DEffHistTemplate("eff_data_altSig", list_etaBinEdge, list_ptBinEdge)
+    h_eff_data_altBkg = Make2DEffHistTemplate("eff_data_altBkg", list_etaBinEdge, list_ptBinEdge)
+    h_eff_mc_altMC    = Make2DEffHistTemplate("eff_mc_altMC",    list_etaBinEdge, list_ptBinEdge)
+    h_eff_mc_altTag   = Make2DEffHistTemplate("eff_mc_altTag",   list_etaBinEdge, list_ptBinEdge)
+
+    # -- fill histograms with the efficiency values
+    Fill_Hist(h_eff_data, list_effInfo, list_etaBinEdge, list_ptBinEdge, "dataNominal")
+    Fill_Hist(h_eff_mc,   list_effInfo, list_etaBinEdge, list_ptBinEdge, "mcNominal")
+
+    Fill_Hist(h_eff_data_altSig, list_effInfo, list_etaBinEdge, list_ptBinEdge, "dataAltSig")
+    Fill_Hist(h_eff_data_altBkg, list_effInfo, list_etaBinEdge, list_ptBinEdge, "dataAltBkg")
+    Fill_Hist(h_eff_mc_altMC,    list_effInfo, list_etaBinEdge, list_ptBinEdge, "mcAlt")
+    Fill_Hist(h_eff_mc_altTag,   list_effInfo, list_etaBinEdge, list_ptBinEdge, "tagSel")
+
+    return [h_eff_data, h_eff_mc, h_eff_data_altSig, h_eff_data_altBkg, h_eff_mc_altMC, h_eff_mc_altTag]

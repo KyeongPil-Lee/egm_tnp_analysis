@@ -217,7 +217,8 @@ if args.sumUp:
     effis = None
     effFileName ='%s/egammaEffi.txt' % outputDirectory 
     fOut = open( effFileName,'w')
-    
+    list_effInfo = []
+
     for ib in range(len(tnpBins['bins'])):
         effis = tnpRoot.getAllEffi( info, tnpBins['bins'][ib] )
 
@@ -240,13 +241,34 @@ if args.sumUp:
             effis['dataAltBkg' ][0],
             effis['dataAltSig' ][0],
             effis['mcAlt' ][0],
-            # effis['tagSel'][0],
-            effis['dataAltSigBkg' ][0],
+            effis['tagSel'][0],
+            # effis['dataAltSigBkg' ][0],
             )
         print(astr)
         fOut.write( astr + '\n' )
-    fOut.close()
 
+        effInfo = [float(v1Range[0]), float(v1Range[2]), float(v2Range[0]), float(v2Range[2]), effis]
+        list_effInfo.append(effInfo)
+
+    fOut.close()
     print('Effis saved in file : ',  effFileName)
-    import libPython.EGammaID_scaleFactors as egm_sf
-    egm_sf.doEGM_SFs(effFileName,sampleToFit.lumi)
+
+    # -- custom part to make 2D histograms -- #
+    outputROOTFile = "%s/el_eff.root" % outputDirectory
+    from ROOT import TFile
+    f_output = TFile(outputROOTFile, "RECREATE")
+    f_output.cd()
+
+    from libPython.efficiencyUtils import MakeList_EffHist
+    list_effHist = MakeList_EffHist(list_effInfo)
+
+    for effHist in list_effHist:
+        effHist.Write()
+
+    f_output.Close()
+    print("2D eff. histograms are saved in %s\n" % outputROOTFile)
+    ###########################################
+
+    # -- make seg. fault
+    # import libPython.EGammaID_scaleFactors as egm_sf
+    # egm_sf.doEGM_SFs(effFileName,sampleToFit.lumi)
