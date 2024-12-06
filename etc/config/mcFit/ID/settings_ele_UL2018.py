@@ -13,7 +13,6 @@ flags = {
     'mediumID'  : '(passingMedium94XV2 == 1)',
 }
 
-baseOutDir = 'results/UL2018/ID/'
 tnpTreeDir = 'tnpEleIDs'
 enable_mcFit = True # -- add weights to "data" ntuples as well
 import etc.inputs.tnpSampleDef_mcFit as tnpSamples
@@ -23,24 +22,28 @@ import etc.inputs.tnpSampleDef_mcFit as tnpSamples
 # weightName = 'weights_2016_run2016.totWeight'
 # theTnPSample = tnpSamples.mcFit_16pre_ID
 # list_ptBinEdge = list_ptBinEdge_16
+# baseOutDir = 'results/UL2016pre/ID/'
 
 # -- 2016, postAPV
 # puTree     = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/postVFP/DY_madgraph_ele.pu.puTree.root"
 # weightName = 'weights_2016_run2016.totWeight'
 # theTnPSample = tnpSamples.mcFit_16post_ID
 # list_ptBinEdge = list_ptBinEdge_16
+# baseOutDir = 'results/UL2016post/ID/'
 
 # -- 2017
 # puTree     = "/eos/cms/store/group/phys_egamma/swmukher/UL2017/PU_miniAOD/DY_madgraph_ele.pu.puTree.root"
 # weightName = 'weights_2017_runBCDEF.totWeight'
 # theTnPSample = tnpSamples.mcFit_17_ID
 # list_ptBinEdge = list_ptBinEdge_1718
+# baseOutDir = 'results/UL2017/ID/'
 
 # -- 2018
 puTree     = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_MINIAOD_Nm1/PU_Trees/DY_madgraph_ele.pu.puTree.root"
 weightName = 'weights_2018_runABCD.totWeight'
 theTnPSample = tnpSamples.mcFit_18_ID
 list_ptBinEdge = list_ptBinEdge_1718
+baseOutDir = 'results/UL2018/ID/'
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -124,11 +127,15 @@ additionalCuts = {
 #############################################################
 ########## fitting params to tune fit by hand if necessary
 #############################################################
-tnpParNomFit = [
+tnpParNomFit = [    
+    # -- default nominal fit for all bins
     "meanP[-0.0,-5.0,5.0]","sigmaP[0.9,0.5,5.0]",
     "meanF[-0.0,-5.0,5.0]","sigmaF[0.9,0.5,5.0]",
     "acmsP[60.,50.,80.]","betaP[0.05,0.01,0.08]","gammaP[0.1, -2, 2]","peakP[90.0]",
     "acmsF[60.,50.,80.]","betaF[0.05,0.01,0.08]","gammaF[0.1, -2, 2]","peakF[90.0]",
+
+    # -- bin 28. 36
+    # "meanP[-0.0,-5.0,5.0]","sigmaP[0.1, 0.0, 5.0]",
     ]
 
 tnpParAltSigFit = [

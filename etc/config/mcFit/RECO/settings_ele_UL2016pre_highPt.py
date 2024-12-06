@@ -15,28 +15,28 @@ enable_mcFit = True # -- add weights to "data" ntuples as well
 import etc.inputs.tnpSampleDef_mcFit as tnpSamples
 
 # -- 2016, preAPV
-# puTree     = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016_AOD/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root"
-# weightName = 'weights_2016_run2016.totWeight'
-# theTnPSample = tnpSamples.mcFit_16pre_RECO
-# baseOutDir = 'results/UL2016pre/RECO/'
+puTree     = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016_AOD/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root"
+weightName = 'weights_2016_run2016.totWeight'
+theTnPSample = tnpSamples.mcFit_16pre_RECO
+baseOutDir = 'results/UL2016pre/RECO_highPt/'
 
 # -- 2016, postAPV
 # puTree     = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016_AOD/PU_Trees/postVFP/DY_madgraph_ele.pu.puTree.root"
 # weightName = 'weights_2016_run2016.totWeight'
 # theTnPSample = tnpSamples.mcFit_16post_RECO
-# baseOutDir = 'results/UL2016post/RECO/'
+# baseOutDir = 'results/UL2016post/RECO_highPt/'
 
 # -- 2017
 # puTree     = "/eos/cms/store/group/phys_egamma/swmukher/UL2017/PU_AOD/DY_1j_madgraph_ele.pu.puTree.root"
 # weightName = 'weights_2017_runBCDEF.totWeight'
 # theTnPSample = tnpSamples.mcFit_17_RECO
-# baseOutDir = 'results/UL2017/RECO/'
+# baseOutDir = 'results/UL2017/RECO_highPt/'
 
 # -- 2018
-puTree     = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_AOD/PU_Trees/DY_madgraph_ele.pu.puTree.root"
-weightName = 'weights_2018_runABCD.totWeight'
-theTnPSample = tnpSamples.mcFit_18_RECO
-baseOutDir = 'results/UL2018/RECO/'
+# puTree     = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_AOD/PU_Trees/DY_madgraph_ele.pu.puTree.root"
+# weightName = 'weights_2018_runABCD.totWeight'
+# theTnPSample = tnpSamples.mcFit_18_RECO
+# baseOutDir = 'results/UL2018/RECO_highPt/'
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -90,8 +90,10 @@ if enable_mcFit:
 ########## bining definition  [can be nD bining]
 #############################################################
 biningDef = [
-   { 'var' : 'sc_eta' , 'type': 'float', 'bins': [-2.5, -2.0, -1.566, -1.444, -1.0, -0.5, 0.0, 0.5, 1.0, 1.444, 1.566, 2.0, 2.5] },
-   { 'var' : 'sc_pt' , 'type': 'float', 'bins': [20, 45, 75, 100, 500] }, # -- remove below 20 GeV bin
+   # { 'var' : 'sc_eta' , 'type': 'float', 'bins': [-2.5, -2.0, -1.566, -1.444, -1.0, -0.5, 0.0, 0.5, 1.0, 1.444, 1.566, 2.0, 2.5] },
+   { 'var' : 'sc_abseta' , 'type': 'float', 'bins': [0.0, 0.5, 1.0, 1.444, 1.566, 2.0, 2.5] },
+   # { 'var' : 'sc_pt' , 'type': 'float', 'bins': [20, 45, 75, 100, 500] },
+   { 'var' : 'sc_pt' , 'type': 'float', 'bins': [75, 100, 500] },
 ]
 
 #############################################################
@@ -125,9 +127,7 @@ tnpParNomFit = [
     "meanP[-0.0,-5.0,5.0]","sigmaP[0.9,0.5,5.0]",
     "meanF[-0.0,-5.0,5.0]","sigmaF[0.9,0.5,5.0]",
     "acmsP[60.,50.,80.]","betaP[0.05,0.01,0.08]","gammaP[0.1, -2, 2]","peakP[90.0]",
-    # "acmsF[60.,50.,80.]","betaF[0.05,0.01,0.08]","gammaF[0.1, -2, 2]","peakF[90.0]",
-
-    "acmsF[10.,0.1.,80.]","betaF[0.01,0.001,0.08]","gammaF[0.1, -2, 2]","peakF[90.0]",
+    "acmsF[60.,50.,80.]","betaF[0.05,0.01,0.08]","gammaF[0.1, -2, 2]","peakF[90.0]",
     ]
 
 tnpParAltSigFit = [
