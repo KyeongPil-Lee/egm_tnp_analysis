@@ -1,46 +1,28 @@
-# Fit on MC (not counting)
+# Fit MiNNLO using Madgraph template
+* Starting point: from mcFit branch
 
 ## Recipe
 
-### First setup (@ lxplus)
+### First setup (@ BE T2)
 
 ```bash
-cd /afs/cern.ch/work/k/kplee/private/Detector/EGMFitter/mcFit/
-cmsrel CMSSW_11_2_0
-cd CMSSW_11_2_0/src
-cmsenv
-
-git clone git@github.com:KyeongPil-Lee/egm_tnp_analysis.git
-cd egm_tnp_analysis
+cd /user/kplee/Analysis/EGMTnP/Fitter
+git clone git@github.com:KyeongPil-Lee/egm_tnp_analysis.git -b mcFit 250925_MiNNLO
+cd 250925_MiNNLO
 make
-
-git checkout -b mcFit
-git push origin mcFit
+source setup.sh # -- setup CMSSW env.
+git checkout -b minnlo
+git push origin minnlo
 ```
 
 ### Usual setup
 
 ```bash
-cd /afs/cern.ch/work/k/kplee/private/Detector/EGMFitter/mcFit/CMSSW_11_2_0/src/egm_tnp_analysis
-cmssw-el7
-
-cmsenv
+cd /user/kplee/Analysis/EGMTnP/Fitter/250925_MiNNLO
+# cmssw-el7
+source setup.sh
 ```
 
-
-
 ## Update
+* on top of the changes in `mcFit` branch
 
-`libPython/histUtil.pyx`
-
-* `makePassFailHistograms`: allow applying weights also for the data ntuple
-  * To apply gen-weight & PU reweighting to the MC ntuple put in "data" slot (to perform the fit)
-* Need to run `make cython-build` to update `.cpp` file
-
-`libPython/efficiencyUtils.py`
-
-* Add a few functions to make 2D histograms with the efficiencies (including alt. efficiencies)
-
-`tnpEGM_fitter.py`
-
-* Update to use the new functions in `libPython/efficiencyUtils.py`
