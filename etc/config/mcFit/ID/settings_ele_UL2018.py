@@ -11,7 +11,7 @@ list_ptBinEdge_1718 = [20.0, 35.0, 50.0, 100.0, 200.0, 500.0] # -- remove below 
 # flag to be Tested
 flags = {
     'mediumID'  : '(passingMedium94XV2 == 1)',
-}
+    }
 
 tnpTreeDir = 'tnpEleIDs'
 enable_mcFit = True # -- add weights to "data" ntuples as well
@@ -43,7 +43,7 @@ puTree     = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_M
 weightName = 'weights_2018_runABCD.totWeight'
 theTnPSample = tnpSamples.mcFit_18_ID
 list_ptBinEdge = list_ptBinEdge_1718
-baseOutDir = 'results/UL2018/ID/'
+baseOutDir = 'results/UL2018/ID/mcFit'
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -105,8 +105,7 @@ biningDef = [
 ########## Cuts definition for all samples
 #############################################################
 ### cut
-cutBase   = 'tag_Ele_pt > 35 && abs(tag_sc_eta) < 2.17 && el_q*tag_Ele_q < 0'
-# cutBase   = 'tag_Ele_pt > 35 && abs(tag_sc_eta) < 2.5'
+cutBase   = 'tag_Ele_pt > 35 && abs(tag_sc_eta) < 2.17 && el_q*tag_Ele_q < 0'# && mcTrue == 1'
 
 additionalCuts = { 
     0 : 'tag_Ele_trigMVA > 0.92 ',
@@ -127,10 +126,11 @@ additionalCuts = {
 #############################################################
 ########## fitting params to tune fit by hand if necessary
 #############################################################
-tnpParNomFit = [    
+tnpParNomFit = [
     # -- default nominal fit for all bins
-    "meanP[-0.0,-5.0,5.0]","sigmaP[0.9,0.5,5.0]",
-    "meanF[-0.0,-5.0,5.0]","sigmaF[0.9,0.5,5.0]",
+    # -- sigma min value updated to 0.05
+    "meanP[-0.0,-5.0,5.0]","sigmaP[0.9,0.05,5.0]",
+    "meanF[-0.0,-5.0,5.0]","sigmaF[0.9,0.05,5.0]",
     "acmsP[60.,50.,80.]","betaP[0.05,0.01,0.08]","gammaP[0.1, -2, 2]","peakP[90.0]",
     "acmsF[60.,50.,80.]","betaF[0.05,0.01,0.08]","gammaF[0.1, -2, 2]","peakF[90.0]",
 
