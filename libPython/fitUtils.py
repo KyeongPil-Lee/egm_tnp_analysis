@@ -112,8 +112,8 @@ def histFitterNominal( sample, tnpBin, tnpWorkspaceParam ):
     fileTruth  = rt.TFile(sample.mcRef.histFile,'read')
     histZLineShapeP = fileTruth.Get('%s_Pass'%tnpBin['name'])
     histZLineShapeF = fileTruth.Get('%s_Fail'%tnpBin['name'])
-    if ptMin( tnpBin ) > minPtForSwitch: 
-        histZLineShapeF = fileTruth.Get('%s_Pass'%tnpBin['name'])
+    #if ptMin( tnpBin ) > minPtForSwitch:
+    #    histZLineShapeF = fileTruth.Get('%s_Pass'%tnpBin['name'])
 #        fitter.fixSigmaFtoSigmaP()
     fitter.setZLineShapes(histZLineShapeP,histZLineShapeF)
 
