@@ -148,15 +148,23 @@ if  args.doFit:
     def parallel_fit(ib):
         if (args.binNumber >= 0 and ib == args.binNumber) or args.binNumber < 0:
             if args.altSig and not args.addGaus:
-                tnpRoot.histFitterAltSig(  sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParAltSigFit )
+                tnpParAltSigFitByPt = getattr(tnpConf, 'tnpParAltSigFitByPt', None)
+                tnpRoot.histFitterAltSig(  sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParAltSigFit, 0, tnpParAltSigFitByPt )
             elif args.altSig and args.addGaus:
-                tnpRoot.histFitterAltSig(  sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParAltSigFit_addGaus, 1)
+                tnpParAltSigFitByPt = getattr(tnpConf, 'tnpParAltSigFitByPt', None)
+                tnpRoot.histFitterAltSig(  sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParAltSigFit_addGaus, 1, tnpParAltSigFitByPt)
             elif args.altBkg:
-                tnpRoot.histFitterAltBkg(  sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParAltBkgFit )
+                tnpParAltBkgFitByPt = getattr(tnpConf, 'tnpParAltBkgFitByPt', None)
+                tnpRoot.histFitterAltBkg(  sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParAltBkgFit, tnpParAltBkgFitByPt )
             elif args.altSigBkg:
                 tnpRoot.histFitterAltSigBkg(  sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParAltSigBkgFit )
             else:
-                tnpRoot.histFitterNominal( sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParNomFit )
+                # Check if pT bin-specific fit configuration is provided
+                tnpParNomFitByPt = getattr(tnpConf, 'tnpParNomFitByPt', None)
+                if tnpParNomFitByPt is not None:
+                    tnpRoot.histFitterNominal( sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParNomFit, tnpParNomFitByPt )
+                else:
+                    tnpRoot.histFitterNominal( sampleToFit, tnpBins['bins'][ib], tnpConf.tnpParNomFit )
     pool = Pool()
     pool.map(parallel_fit, range(len(tnpBins['bins'])))
 

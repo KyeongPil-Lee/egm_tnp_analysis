@@ -1,49 +1,89 @@
 from libPython.tnpClassUtils import tnpSample
 
 # -- RECO trees
-### TODO : need to UPDATE the paths as in ID part, also check the different paths as in the todo of ID part
-mcTree_16pre_RECO  = '/eos/cms/store/group/phys_egamma/akapoor/Tag-and-Probe_Tree/UL2016_ntuples/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8_preVFP_UL2016_AOD.root'
-mcTree_16post_RECO = '/eos/cms/store/group/phys_egamma/akapoor/Tag-and-Probe_Tree/UL2016_ntuples/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8_postVFP_UL2016_AOD.root'
-mcTree_17_RECO     = '/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2017_AOD/DYJetsToEE_fs.root'
-mcTree_18_RECO     = '/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_AOD/DYJetsToLL_madgraphMLM.root'
+# -- ref: S43 of https://indico.cern.ch/event/1484434/contributions/6255682/attachments/2981971/5250669/20241206_DrellYan_HighMee_KLee_v1.pdf
+dir_16pre_RECO = "/eos/cms/store/group/phys_egamma/akapoor/Tag-and-Probe_Tree/UL2016_ntuples/"
+tree_16pre_RECO = {
+  "data" : dir_16pre_RECO + "UL2016_SingleEle_preVFP_BBv2CDEFpreVFP_AOD.root",
+  "DY_madgraph": dir_16pre_RECO + "DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8_preVFP_UL2016_AOD.root",
+  "DY_amcatnloext": dir_16pre_RECO + "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_preVFP_UL2016_AOD.root"
+}
 
-mcFit_16pre_RECO = {
+dir_16post_RECO = dir_16pre_RECO
+tree_16post_RECO = {
+  "data" : dir_16post_RECO + "UL2016_SingleEle_postVFP_FpostVFPandGH_AOD.root",
+  "DY_madgraph": dir_16post_RECO + "DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8_postVFP_UL2016_AOD.root",
+  "DY_amcatnloext": dir_16post_RECO + "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_postVFP_UL2016_AOD.root"
+}
+
+dir_17_RECO = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2017_AOD/"
+tree_17_RECO = {
+  "data" : dir_17_RECO + "Run_BCDEF_SingEle.root",
+  "DY_madgraph": dir_17_RECO + "DYJetsToEE_fs.root",
+  "DY_amcatnloext": dir_17_RECO + "DYJetsToLL_amcatnloFXFX.root"
+}
+
+dir_18_RECO = "/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_AOD/"
+tree_18_RECO = {
+  "data" : dir_18_RECO + "EGamma_RunABCD.root",
+  "DY_madgraph": dir_18_RECO + "DYJetsToLL_madgraphMLM.root",
+  "DY_amcatnloext": dir_18_RECO + "DYJetsToLL_amcatnloFXFX.root"
+}
+
+
+dataFit_16pre_RECO = {
     'DY_madgraph' : tnpSample('DY_madgraph',
-                              mcTree_16pre_RECO,
+                              tree_16pre_RECO['DY_madgraph'],
                               isMC = True, nEvts = -1 ),
 
+    'DY_amcatnloext' : tnpSample('DY_amcatnloext',
+                              tree_16pre_RECO['DY_amcatnloext'],
+                              isMC = True, nEvts =  -1 ),
+
     'data' : tnpSample('data',
-                       mcTree_16pre_RECO, # -- use MC tree to fit
+                       tree_16pre_RECO['data'],
                        lumi = 19.76329286),
 }
 
-mcFit_16post_RECO = {
+dataFit_16post_RECO = {
     'DY_madgraph' : tnpSample('DY_madgraph',
-                              mcTree_16post_RECO,
+                              tree_16post_RECO['DY_madgraph'],
                               isMC = True, nEvts = -1 ),
 
+    'DY_amcatnloext' : tnpSample('DY_amcatnloext',
+                              tree_16post_RECO['DY_amcatnloext'],
+                              isMC = True, nEvts =  -1 ),
+
     'data' : tnpSample('data',
-                       mcTree_16post_RECO, # -- use MC tree to fit
+                       tree_16post_RECO['data'],
                        lumi = 16.851738703),
 }
 
-mcFit_17_RECO = {
+dataFit_17_RECO = {
     'DY_madgraph' : tnpSample('DY_madgraph',
-                              mcTree_17_RECO,
+                              tree_17_RECO['DY_madgraph'],
                               isMC = True, nEvts = -1 ),
 
+    'DY_amcatnloext' : tnpSample('DY_amcatnloext',
+                              tree_17_RECO['DY_amcatnloext'],
+                              isMC = True, nEvts =  -1 ),
+
     'data' : tnpSample('data',
-                       mcTree_17_RECO, # -- use MC tree to fit
+                       tree_17_RECO['data'],
                        lumi = 41.497435514),
 }
 
-mcFit_18_RECO = {
+dataFit_18_RECO = {
     'DY_madgraph' : tnpSample('DY_madgraph',
-                              mcTree_18_RECO,
+                              tree_18_RECO['DY_madgraph'],
                               isMC = True, nEvts = -1 ),
 
+    'DY_amcatnloext' : tnpSample('DY_amcatnloext',
+                              tree_18_RECO['DY_amcatnloext'],
+                              isMC = True, nEvts =  -1 ),
+
     'data' : tnpSample('data',
-                       mcTree_18_RECO, # -- use MC tree to fit
+                       tree_18_RECO['data'],
                        lumi = 59.724318946),
 }
 

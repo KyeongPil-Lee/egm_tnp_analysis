@@ -20,6 +20,22 @@ def ptMin( tnpBin ):
         ptmin = float(tnpBin['name'].split('et_')[1].split('p')[0])
     return ptmin
 
+def ptMax( tnpBin ):
+    ptmax = 10000
+    if tnpBin['name'].find('pt_') >= 0:
+        ptstr = tnpBin['name'].split('pt_')[1]
+        if 'To' in ptstr:
+            ptmax = float(ptstr.split('To')[1].split('p')[0])
+    elif tnpBin['name'].find('et_') >= 0:
+        ptstr = tnpBin['name'].split('et_')[1]
+        if 'To' in ptstr:
+            ptmax = float(ptstr.split('To')[1].split('p')[0])
+    return ptmax
+
+def getPtBinRange( tnpBin ):
+    """Return (ptmin, ptmax) tuple for the bin"""
+    return (ptMin(tnpBin), ptMax(tnpBin))
+
 def createWorkspaceForAltSig( sample, tnpBin, tnpWorkspaceParam ):
 
     ### tricky: use n < 0 for high pT bin (so need to remove param and add it back)
@@ -81,17 +97,73 @@ def createWorkspaceForAltSig( sample, tnpBin, tnpWorkspaceParam ):
 #############################################################
 ########## nominal fitter
 #############################################################
-def histFitterNominal( sample, tnpBin, tnpWorkspaceParam ):
-        
-    tnpWorkspaceFunc = [
-        "Gaussian::sigResPass(x,meanP,sigmaP)",
-        "Gaussian::sigResFail(x,meanF,sigmaF)",
-        "RooCMSShape::bkgPass(x, acmsP, betaP, gammaP, peakP)",
-        "RooCMSShape::bkgFail(x, acmsF, betaF, gammaF, peakF)",
+def histFitterNominal( sample, tnpBin, tnpWorkspaceParam, tnpParNomFitByPt=None ):
+    """
+    Nominal fitter with optional pT bin-specific fit functions
+    
+    Args:
+        sample: sample object
+        tnpBin: bin definition dictionary
+        tnpWorkspaceParam: list of workspace parameters (can be a function or dict)
+        tnpParNomFitByPt: optional dictionary mapping pT bin ranges to (params, fitFunc) tuples
+                         e.g., {(75, 100): (params_list, 'Chebychev2'), ...}
+                         If None, uses default RooCMSShape for all bins
+    """
+    
+    # Determine which fit function and parameters to use based on pT bin
+    ptmin, ptmax = getPtBinRange(tnpBin)
+    useParams = tnpWorkspaceParam
+    useFitFunc = 'RooCMSShape'  # default
+    
+    # Check if pT-specific configuration is provided
+    if tnpParNomFitByPt is not None:
+        # Find matching pT bin range
+        # Match if bin's ptmin falls within the specified range
+        for (pt_range_min, pt_range_max), (params, fitFunc) in tnpParNomFitByPt.items():
+            if ptmin >= pt_range_min and ptmin < pt_range_max:
+                useParams = params
+                useFitFunc = fitFunc
+                break
+    
+    # Handle case where tnpWorkspaceParam is a function
+    if callable(useParams):
+        useParams = useParams(tnpBin)
+    
+    # Define fit functions based on selected type
+    if useFitFunc == 'Chebychev2':
+        # 2nd order Chebyshev polynomial
+        tnpWorkspaceFunc = [
+            "Gaussian::sigResPass(x,meanP,sigmaP)",
+            "Gaussian::sigResFail(x,meanF,sigmaF)",
+            "Chebychev::bkgPass(x, {c0P, c1P, c2P})",
+            "Chebychev::bkgFail(x, {c0F, c1F, c2F})",
+        ]
+    elif useFitFunc == 'Chebychev1':
+        # 1st order Chebyshev polynomial
+        tnpWorkspaceFunc = [
+            "Gaussian::sigResPass(x,meanP,sigmaP)",
+            "Gaussian::sigResFail(x,meanF,sigmaF)",
+            "Chebychev::bkgPass(x, {c0P, c1P})",
+            "Chebychev::bkgFail(x, {c0F, c1F})",
+        ]
+    elif useFitFunc == 'Exponential':
+        # Exponential background
+        tnpWorkspaceFunc = [
+            "Gaussian::sigResPass(x,meanP,sigmaP)",
+            "Gaussian::sigResFail(x,meanF,sigmaF)",
+            "Exponential::bkgPass(x, alphaP)",
+            "Exponential::bkgFail(x, alphaF)",
+        ]
+    else:  # default: RooCMSShape
+        tnpWorkspaceFunc = [
+            "Gaussian::sigResPass(x,meanP,sigmaP)",
+            "Gaussian::sigResFail(x,meanF,sigmaF)",
+            "RooCMSShape::bkgPass(x, acmsP, betaP, gammaP, peakP)",
+            "RooCMSShape::bkgFail(x, acmsF, betaF, gammaF, peakF)",
         ]
 
     tnpWorkspace = []
-    tnpWorkspace.extend(tnpWorkspaceParam)
+    tnpWorkspace.extend(useParams)
     tnpWorkspace.extend(tnpWorkspaceFunc)
     
     ## init fitter
@@ -112,7 +184,7 @@ def histFitterNominal( sample, tnpBin, tnpWorkspaceParam ):
     fileTruth  = rt.TFile(sample.mcRef.histFile,'read')
     histZLineShapeP = fileTruth.Get('%s_Pass'%tnpBin['name'])
     histZLineShapeF = fileTruth.Get('%s_Fail'%tnpBin['name'])
-    #if ptMin( tnpBin ) > minPtForSwitch:
+    # if ptMin( tnpBin ) > minPtForSwitch:
     #    histZLineShapeF = fileTruth.Get('%s_Pass'%tnpBin['name'])
 #        fitter.fixSigmaFtoSigmaP()
     fitter.setZLineShapes(histZLineShapeP,histZLineShapeF)
@@ -136,16 +208,64 @@ def histFitterNominal( sample, tnpBin, tnpWorkspaceParam ):
 #############################################################
 ########## alternate signal fitter
 #############################################################
-def histFitterAltSig( sample, tnpBin, tnpWorkspaceParam, isaddGaus=0 ):
-
-    tnpWorkspacePar = createWorkspaceForAltSig( sample,  tnpBin, tnpWorkspaceParam )
-
+def histFitterAltSig( sample, tnpBin, tnpWorkspaceParam, isaddGaus=0, tnpParAltSigFitByPt=None ):
+    """
+    Alternate signal fitter with optional pT bin-specific fit functions and parameters
+    
+    Args:
+        sample: sample object
+        tnpBin: bin definition dictionary
+        tnpWorkspaceParam: list of workspace parameters (base parameters)
+        isaddGaus: flag to add Gaussian to failing probe
+        tnpParAltSigFitByPt: optional dictionary mapping pT bin ranges to (params, fitFunc) tuples
+                            e.g., {(75, 100): (full_params_list, 'Chebychev2'), ...}
+                            If None, uses default RooCMSShape with base parameters for all bins
+                            params_list should include both signal and background parameters
+    """
+    # Determine which background fit function and parameters to use based on pT bin
+    ptmin, ptmax = getPtBinRange(tnpBin)
+    useBkgFunc = 'RooCMSShape'  # default
+    useParams = tnpWorkspaceParam  # default to base parameters
+    
+    # Check if pT-specific configuration is provided
+    if tnpParAltSigFitByPt is not None:
+        # Find matching pT bin range
+        for (pt_range_min, pt_range_max), config in tnpParAltSigFitByPt.items():
+            if ptmin >= pt_range_min and ptmin < pt_range_max:
+                # Support both old format (string only) and new format (tuple)
+                if isinstance(config, tuple) and len(config) == 2:
+                    useParams, useBkgFunc = config
+                else:
+                    # Backward compatibility: if just a string, use it as function type
+                    useBkgFunc = config
+                break
+    
+    # Handle case where useParams is a function
+    if callable(useParams):
+        useParams = useParams(tnpBin)
+    
+    # Create a copy to avoid modifying the original
+    useParams = list(useParams)
+    
+    tnpWorkspacePar = createWorkspaceForAltSig( sample,  tnpBin, useParams )
+    
+    # Define background functions based on selected type
+    if useBkgFunc == 'Chebychev2':
+        bkgFuncPass = "Chebychev::bkgPass(x, {c0P, c1P, c2P})"
+        bkgFuncFail = "Chebychev::bkgFail(x, {c0F, c1F, c2F})"
+    elif useBkgFunc == 'Chebychev1':
+        bkgFuncPass = "Chebychev::bkgPass(x, {c0P, c1P})"
+        bkgFuncFail = "Chebychev::bkgFail(x, {c0F, c1F})"
+    else:  # default: RooCMSShape
+        bkgFuncPass = "RooCMSShape::bkgPass(x, acmsP, betaP, gammaP, peakP)"
+        bkgFuncFail = "RooCMSShape::bkgFail(x, acmsF, betaF, gammaF, peakF)"
+    
     tnpWorkspaceFunc = [
         "tailLeft[1]",
         "RooCBExGaussShapeTNP::sigResPass(x,meanP,expr('sqrt(sigmaP*sigmaP+sosP*sosP)',{sigmaP,sosP}),alphaP,nP, expr('sqrt(sigmaP_2*sigmaP_2+sosP*sosP)',{sigmaP_2,sosP}),tailLeft)",
         "RooCBExGaussShapeTNP::sigResFail(x,meanF,expr('sqrt(sigmaF*sigmaF+sosF*sosF)',{sigmaF,sosF}),alphaF,nF, expr('sqrt(sigmaF_2*sigmaF_2+sosF*sosF)',{sigmaF_2,sosF}),tailLeft)",
-        "RooCMSShape::bkgPass(x, acmsP, betaP, gammaP, peakP)",
-        "RooCMSShape::bkgFail(x, acmsF, betaF, gammaF, peakF)",
+        bkgFuncPass,
+        bkgFuncFail,
         ]
     if isaddGaus==1:
         tnpWorkspaceFunc += [ "Gaussian::sigGaussFail(x,meanGF,sigmaGF)", ]
@@ -197,17 +317,60 @@ def histFitterAltSig( sample, tnpBin, tnpWorkspaceParam, isaddGaus=0 ):
 #############################################################
 ########## alternate background fitter
 #############################################################
-def histFitterAltBkg( sample, tnpBin, tnpWorkspaceParam ):
+def histFitterAltBkg( sample, tnpBin, tnpWorkspaceParam, tnpParAltBkgFitByPt=None ):
+    """
+    Alternate background fitter with optional pT bin-specific background functions
+    
+    Args:
+        sample: sample object
+        tnpBin: bin definition dictionary
+        tnpWorkspaceParam: list of workspace parameters
+        tnpParAltBkgFitByPt: optional dictionary mapping pT bin ranges to (params, fitFunc) tuples
+                            e.g., {(75, 100): (params_list, 'ExpPlusConst'), ...}
+                            If None, uses default Exponential for all bins
+    """
+    # Determine which background fit function and parameters to use based on pT bin
+    ptmin, ptmax = getPtBinRange(tnpBin)
+    useParams = tnpWorkspaceParam
+    useBkgFunc = 'Exponential'  # default
+    
+    # Check if pT-specific configuration is provided
+    if tnpParAltBkgFitByPt is not None:
+        # Find matching pT bin range
+        for (pt_range_min, pt_range_max), (params, bkgFunc) in tnpParAltBkgFitByPt.items():
+            if ptmin >= pt_range_min and ptmin < pt_range_max:
+                useParams = params
+                useBkgFunc = bkgFunc
+                break
+    
+    # Handle case where tnpWorkspaceParam is a function
+    if callable(useParams):
+        useParams = useParams(tnpBin)
+    
+    # Define background functions based on selected type
+    if useBkgFunc == 'Chebychev2':
+        bkgFuncPass = "Chebychev::bkgPass(x, {c0P, c1P, c2P})"
+        bkgFuncFail = "Chebychev::bkgFail(x, {c0F, c1F, c2F})"
+    elif useBkgFunc == 'Chebychev1':
+        bkgFuncPass = "Chebychev::bkgPass(x, {c0P, c1P})"
+        bkgFuncFail = "Chebychev::bkgFail(x, {c0F, c1F})"
+    elif useBkgFunc == 'ExpPlusConst':
+        # a*exp(bx)+c form: using RooGenericPdf
+        bkgFuncPass = "GenericPdf::bkgPass('aP*exp(bP*x)+cP',{x,aP,bP,cP})"
+        bkgFuncFail = "GenericPdf::bkgFail('aF*exp(bF*x)+cF',{x,aF,bF,cF})"
+    else:  # default: Exponential
+        bkgFuncPass = "Exponential::bkgPass(x, alphaP)"
+        bkgFuncFail = "Exponential::bkgFail(x, alphaF)"
 
     tnpWorkspaceFunc = [
         "Gaussian::sigResPass(x,meanP,sigmaP)",
         "Gaussian::sigResFail(x,meanF,sigmaF)",
-        "Exponential::bkgPass(x, alphaP)",
-        "Exponential::bkgFail(x, alphaF)",
+        bkgFuncPass,
+        bkgFuncFail,
         ]
 
     tnpWorkspace = []
-    tnpWorkspace.extend(tnpWorkspaceParam)
+    tnpWorkspace.extend(useParams)
     tnpWorkspace.extend(tnpWorkspaceFunc)
             
     ## init fitter
